@@ -15,8 +15,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 package aschente.server;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,11 +34,61 @@ package aschente.server;
  */
 public class AschenteServer {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    public static int PORT;
+
+    public AschenteServer(int port) throws IOException {
+        ServerSocket ss = new ServerSocket(port);
+        System.out.println("SERVER STARTED");
+        while (true) {
+            new ServerThread(ss.accept());
+        }
     }
-    
+
+    private class ServerThread extends Thread {
+
+        private final Socket socket;
+
+        public ServerThread(Socket socket) {
+            this.socket = socket;
+            start();
+        }
+
+        public void run() {
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                while (true) {
+                    System.out.println(in.readObject());
+                    out.writeObject(new String("test"));
+                    out.flush();
+                    out.reset();
+                }
+            } catch (Throwable t) {
+                System.out.println("Caught " + t + " - closing thread");
+                //client disconnected
+            }
+        }
+    }
+
+    public static void main(String[] args)  {
+        //read and set server port here
+        try {
+            File portfile = new File("Config\\port.txt");
+            Scanner sc = new Scanner(portfile);
+            PORT = sc.nextInt();
+        } catch (FileNotFoundException ex) {
+            System.err.println("File Config\\port.txt is not found! using default port 6969");
+            PORT = 6969;
+        } finally {
+            try {
+                System.out.println("STARTING SERVER");
+                new AschenteServer(PORT);
+            } catch (IOException ex) {
+                System.err.println("CANNOT START SERVER");
+                System.exit(1);
+            }
+        }
+
+    }
+
 }
