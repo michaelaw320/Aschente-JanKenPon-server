@@ -73,9 +73,13 @@ public class ServerThread extends Thread {
     
     private void UserLoginHandler() {
         try {
+            /* UserLogin.java handler */
             Send("ACK");
             String userName = (String) Receive();
             System.out.println(userName);
+            //username checking
+            /* OathScreen.java handler */
+            Send("OK");
         } catch (Throwable t) {
             System.out.println("Caught " + t + " - closing thread");
             //client disconnected
