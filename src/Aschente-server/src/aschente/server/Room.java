@@ -18,10 +18,33 @@
 
 package aschente.server;
 
+import java.io.File;
+import java.util.ArrayList;
+
 /**
  *
  * @author Michael
  */
 public class Room {
+    private Player P1;
+    private Player P2;
+    private int currentRound;
+    public String RoomName = "";
+    public boolean isFull;
+    
+    public Room(String roomName, Player hostPlayer) {
+        RoomName = roomName;
+        P1 = hostPlayer;
+        isFull = false;
+        currentRound = 1;
+    }
+    
+    public void Join(Player joinPlayer) {
+        P2 = joinPlayer;
+    }
+    
+    public int getPlayTo() {
+        return ServerVar.PlayTo;
+    }
     
 }

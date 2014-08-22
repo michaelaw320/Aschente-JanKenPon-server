@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -34,8 +32,13 @@ public class ServerThread extends Thread {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private String Query;
+    private String userName;
+    private String roomName;
+    private boolean isHost;
+    private Player P;
 
     public ServerThread(Socket socket) {
+        this.isHost = false;
         this.socket = socket;
         start();
     }
@@ -47,13 +50,38 @@ public class ServerThread extends Thread {
             in = new ObjectInputStream(socket.getInputStream());
             while (true) {
                 Query = (String) Receive();
-                if (Query.equals("USERNAMEINPUT")) {
-                    UserLoginHandler();
+                switch (Query) {
+                    case "USERNAMEINPUT":
+                        UserLoginHandler();
+                        break;
+                    case "CREATEROOM":
+                        CreateRoomHandler();
+                        break;
+                    case "REFRESHROOMLIST":
+                        RefreshListHandler();
+                        break;
+                    case "JOINROOM":
+                        JoinRoomHandler();
+                        break;
                 }
             }
         } catch (Throwable t) {
-            System.out.println("Caught " + t + " - closing thread");
-            //client disconnected
+            //client disconnected, cleanup
+            System.out.println("Client Disconnected"+socket.getInetAddress());
+            try {
+                socket.close();
+            } catch (IOException ex) {
+                System.err.println(ex);
+            }
+            if(userName != null) P.updatePlayer();
+            if (isHost) {
+                for(int i = 0; i < ServerVar.RoomList.size();i++) {
+                    if(ServerVar.RoomList.get(i).RoomName.equals(roomName)) {
+                        ServerVar.RoomList.remove(i);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -71,18 +99,33 @@ public class ServerThread extends Thread {
         }
     }
     
-    private void UserLoginHandler() {
-        try {
+    private void UserLoginHandler() throws IOException {
             /* UserLogin.java handler */
             Send("ACK");
-            String userName = (String) Receive();
-            System.out.println(userName);
+            userName = (String) Receive();
+            P = new Player(userName);
             //username checking
             /* OathScreen.java handler */
             Send("OK");
-        } catch (Throwable t) {
-            System.out.println("Caught " + t + " - closing thread");
-            //client disconnected
+    }
+    
+    private void CreateRoomHandler() throws IOException {
+            Send("ACK");
+            roomName = (String) Receive();
+            System.out.println(roomName);
+            ServerVar.RoomList.add(new Room(roomName, P));
+            isHost = true;
+        for (Room RoomList : ServerVar.RoomList) {
+            System.out.println(RoomList.RoomName);
         }
     }
+    
+    private void RefreshListHandler() throws IOException {
+        
+    }
+    
+    private void JoinRoomHandler() throws IOException {
+        
+    }
+    
 }

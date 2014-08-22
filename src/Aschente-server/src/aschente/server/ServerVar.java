@@ -18,10 +18,15 @@
 
 package aschente.server;
 
+import java.io.File;
+import java.util.ArrayList;
+
 /**
  *
  * @author Michael
  */
 public class ServerVar {
+    public static ArrayList<Room> RoomList = new ArrayList<>(); 
+    public static int PlayTo = 5;
     
 }
