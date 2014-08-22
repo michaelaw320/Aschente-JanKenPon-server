@@ -44,32 +44,6 @@ public class AschenteServer {
         }
     }
 
-    private class ServerThread extends Thread {
-
-        private final Socket socket;
-
-        public ServerThread(Socket socket) {
-            this.socket = socket;
-            start();
-        }
-
-        public void run() {
-            try {
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                while (true) {
-                    System.out.println(in.readObject());
-                    out.writeObject(new String("test"));
-                    out.flush();
-                    out.reset();
-                }
-            } catch (Throwable t) {
-                System.out.println("Caught " + t + " - closing thread");
-                //client disconnected
-            }
-        }
-    }
-
     public static void main(String[] args)  {
         //read and set server port here
         try {
@@ -77,8 +51,8 @@ public class AschenteServer {
             Scanner sc = new Scanner(portfile);
             PORT = sc.nextInt();
         } catch (FileNotFoundException ex) {
-            System.err.println("File Config\\port.txt is not found! using default port 6969");
-            PORT = 6969;
+            System.err.println("File Config\\port.txt is not found! using default port 45373");
+            PORT = 45373;
         } finally {
             try {
                 System.out.println("STARTING SERVER");
