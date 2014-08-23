@@ -70,6 +70,12 @@ public class ServerThread extends Thread {
                     case "REFRESHGAMEDATA":
                         RefreshGameDataHandler();
                         break;
+                    case "READY?":
+                        if(currentRoom.isFull == false) {
+                            Send("NOTYET");
+                        } else {
+                            Send("OK");
+                        }
                 }
             }
         } catch (Throwable t) {
@@ -124,14 +130,6 @@ public class ServerThread extends Thread {
             currentRoom = new Room(roomName, P);
             ServerVar.RoomList.add(currentRoom);
             isHost = true;
-            while(currentRoom.isFull == false) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    
-                }
-            }
-            RefreshGameDataHandler();
     }
     
     private void RefreshListHandler() throws IOException {
