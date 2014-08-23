@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -36,6 +39,7 @@ public class ServerThread extends Thread {
     private String roomName;
     private boolean isHost;
     private Player P;
+    private Room currentRoom;
 
     public ServerThread(Socket socket) {
         this.isHost = false;
@@ -62,6 +66,9 @@ public class ServerThread extends Thread {
                         break;
                     case "JOINROOM":
                         JoinRoomHandler();
+                        break;
+                    case "REFRESHGAMEDATA":
+                        RefreshGameDataHandler();
                         break;
                 }
             }
@@ -104,6 +111,7 @@ public class ServerThread extends Thread {
             Send("ACK");
             userName = (String) Receive();
             P = new Player(userName);
+            Send(P.getPlayerScore());
             //username checking
             /* OathScreen.java handler */
             Send("OK");
@@ -113,18 +121,51 @@ public class ServerThread extends Thread {
             Send("ACK");
             roomName = (String) Receive();
             System.out.println(roomName);
-            ServerVar.RoomList.add(new Room(roomName, P));
+            currentRoom = new Room(roomName, P);
+            ServerVar.RoomList.add(currentRoom);
             isHost = true;
-        for (Room RoomList : ServerVar.RoomList) {
-            System.out.println(RoomList.RoomName);
-        }
+            while(currentRoom.isFull == false) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    
+                }
+            }
+            RefreshGameDataHandler();
     }
     
     private void RefreshListHandler() throws IOException {
-        
+        ArrayList<String> RoomNameList = new ArrayList<>();
+        for (Room RoomList : ServerVar.RoomList) {
+            RoomNameList.add(RoomList.RoomName);
+        }
+        Send(RoomNameList);
     }
     
     private void JoinRoomHandler() throws IOException {
+        Send("ACK");
+        roomName = (String) Receive();
+        System.out.println(roomName);
+        int i = 0;
+        boolean stop = false;
+        currentRoom = null;
+        while (!stop && i < ServerVar.RoomList.size()) {
+            if(ServerVar.RoomList.get(i).RoomName.equals(roomName)) {
+                stop = true;
+                currentRoom = ServerVar.RoomList.get(i);
+            } else {
+                i++;
+            }
+        }
+        if(currentRoom != null) currentRoom.Join(P);
+    }
+    
+    private void RefreshGameDataHandler() throws IOException {
+        System.out.println(currentRoom.getOtherPlayer(P).getPlayerName());
+        System.out.println(currentRoom.getOtherPlayer(P).getPlayerScore());
+        Send(currentRoom.getOtherPlayer(P).getPlayerName());
+        Send(currentRoom.getOtherPlayer(P).getPlayerScore());
+        Send(ServerVar.PlayTo);
         
     }
     

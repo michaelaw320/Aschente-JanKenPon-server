@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * @author Michael
  */
 public class ServerVar {
-    public static ArrayList<Room> RoomList = new ArrayList<>(); 
+    public static volatile ArrayList<Room> RoomList = new ArrayList<>(); 
     public static int PlayTo = 5;
     
 }

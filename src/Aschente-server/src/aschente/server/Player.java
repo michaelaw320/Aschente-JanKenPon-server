@@ -60,6 +60,14 @@ public class Player {
         System.out.println("isNew?: " + isNew);
         System.out.println();
     }
+    
+    public String getPlayerName() {
+        return name;
+    }
+    
+    public int getPlayerScore() {
+        return score;
+    }
 
     private synchronized boolean queryPlayer() {
         File highscore = new File("highscore.txt");

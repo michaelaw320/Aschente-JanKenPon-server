@@ -28,9 +28,9 @@ import java.util.ArrayList;
 public class Room {
     private Player P1;
     private Player P2;
-    private int currentRound;
+    private volatile int currentRound;
     public String RoomName = "";
-    public boolean isFull;
+    public volatile boolean isFull;
     
     public Room(String roomName, Player hostPlayer) {
         RoomName = roomName;
@@ -41,6 +41,15 @@ public class Room {
     
     public void Join(Player joinPlayer) {
         P2 = joinPlayer;
+        isFull = true;
+    }
+    
+    public Player getOtherPlayer(Player requestingPlayer) {
+        if(requestingPlayer.equals(P1)) {
+            return P2;
+        } else {
+            return P1;
+        }
     }
     
     public int getPlayTo() {
