@@ -31,12 +31,16 @@ public class Room {
     private volatile int currentRound;
     public String RoomName = "";
     public volatile boolean isFull;
+    private volatile boolean P1Aschente;
+    private volatile boolean P2Aschente;
     
     public Room(String roomName, Player hostPlayer) {
         RoomName = roomName;
         P1 = hostPlayer;
         isFull = false;
         currentRound = 1;
+        P1Aschente = false;
+        P2Aschente = false;
     }
     
     public void Join(Player joinPlayer) {
@@ -54,6 +58,18 @@ public class Room {
     
     public int getPlayTo() {
         return ServerVar.PlayTo;
+    }
+    
+    public void Aschente(Player whoAschente) {
+        if(whoAschente.equals(P1)) {
+            P1Aschente = true;
+        } else {
+            P2Aschente = true;
+        }
+    }
+    
+    public boolean isBothAschente() {
+        return (P1Aschente && P2Aschente);
     }
     
 }

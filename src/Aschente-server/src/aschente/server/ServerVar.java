@@ -27,6 +27,6 @@ import java.util.ArrayList;
  */
 public class ServerVar {
     public static volatile ArrayList<Room> RoomList = new ArrayList<>(); 
-    public static int PlayTo = 5;
+    public static int PlayTo = 10;
     
 }

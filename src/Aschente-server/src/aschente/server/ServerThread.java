@@ -70,12 +70,9 @@ public class ServerThread extends Thread {
                     case "REFRESHGAMEDATA":
                         RefreshGameDataHandler();
                         break;
-                    case "READY?":
-                        if(currentRoom.isFull == false) {
-                            Send("NOTYET");
-                        } else {
-                            Send("OK");
-                        }
+                    case "ASCHENTE!":
+                        AschenteHandler();
+                        break;
                 }
             }
         } catch (Throwable t) {
@@ -130,6 +127,14 @@ public class ServerThread extends Thread {
             currentRoom = new Room(roomName, P);
             ServerVar.RoomList.add(currentRoom);
             isHost = true;
+            while (currentRoom.isFull == false) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ex) {
+                    
+                }
+            }
+            Send("GAMESTART");
     }
     
     private void RefreshListHandler() throws IOException {
@@ -165,6 +170,16 @@ public class ServerThread extends Thread {
         Send(currentRoom.getOtherPlayer(P).getPlayerScore());
         Send(ServerVar.PlayTo);
         
+    }
+    
+    private void AschenteHandler() throws IOException {
+        currentRoom.Aschente(P);
+        System.out.println("WAITING");
+        while(!currentRoom.isBothAschente()) {
+            //wait
+            System.out.println("WAITING");
+        }
+        Send("ASCHENTE!");
     }
     
 }
