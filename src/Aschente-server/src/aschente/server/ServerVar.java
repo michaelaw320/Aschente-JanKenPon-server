@@ -18,7 +18,11 @@
 
 package aschente.server;
 
+import static aschente.server.AschenteServer.PORT;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  *
@@ -28,4 +32,14 @@ public class ServerVar {
     public static volatile ArrayList<Room> RoomList = new ArrayList<>(); 
     public static int PlayTo = 1;
     
+    public static void loadPlayTo() {
+        try {
+            File playtofile = new File("Config\\playto.txt");
+            Scanner sc = new Scanner(playtofile);
+            PlayTo = sc.nextInt();
+        } catch (FileNotFoundException ex) {
+            System.err.println("File Config\\playto.txt is not found! using default playto 5");
+            PlayTo = 5;
+        }
+    }
 }

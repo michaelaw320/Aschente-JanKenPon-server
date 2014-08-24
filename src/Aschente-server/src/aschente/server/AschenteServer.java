@@ -33,6 +33,7 @@ public class AschenteServer {
 
     public AschenteServer(int port) throws IOException {
         ServerSocket ss = new ServerSocket(port);
+        ServerVar.loadPlayTo();
         System.out.println("SERVER STARTED");
         while (true) {
             new ServerThread(ss.accept());
