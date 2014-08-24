@@ -156,8 +156,10 @@ public class Room {
                 System.out.println("DRAW");
         } else if (P1WinFlag == true && P2WinFlag == false) {
                 System.out.println(P1.getPlayerName()+" WINS");
+                P1.incScore();
         } else if (P1WinFlag == false && P2WinFlag == true) {
                 System.out.println(P2.getPlayerName()+" WINS");
+                P2.incScore();
         }
         
         decisionAvailable = true;

@@ -66,6 +66,10 @@ public class Player {
         return score;
     }
 
+    public void incScore(){
+        score++;
+    }
+    
     private synchronized boolean queryPlayer() {
         File highscore = new File("highscore.txt");
         boolean found = false;

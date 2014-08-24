@@ -48,6 +48,7 @@ public class ServerThread extends Thread {
 
     public void run() {
         try {
+            System.out.println();
             System.out.println("New client connected" + socket.getInetAddress());
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
@@ -89,7 +90,7 @@ public class ServerThread extends Thread {
                         GameHandler();
                         break;
                     case "SAVEGAME":
-                        P.updatePlayer();
+                        //P.updatePlayer();
                         break;
                     case "NEWGAME":
                         DeleteRoom();
@@ -101,6 +102,7 @@ public class ServerThread extends Thread {
         } catch (Throwable t) {
             //client disconnected, cleanup
             System.out.println("Client Disconnected"+socket.getInetAddress());
+            System.out.println();
             try {
                 socket.close();
             } catch (IOException ex) {
