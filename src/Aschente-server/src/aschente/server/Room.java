@@ -18,9 +18,6 @@
 
 package aschente.server;
 
-import java.io.File;
-import java.util.ArrayList;
-
 /**
  *
  * @author Michael
@@ -34,6 +31,19 @@ public class Room {
     private volatile boolean P1Aschente;
     private volatile boolean P2Aschente;
     
+    private volatile boolean P1EnterChoice;
+    private volatile String P1Choice;
+    private volatile boolean P2EnterChoice;
+    private volatile String P2Choice;
+    
+    private volatile boolean P1WinFlag;
+    private volatile boolean P2WinFlag;
+    
+    private volatile boolean P1ReqStatus;
+    private volatile boolean P2ReqStatus;
+    
+    private volatile boolean decisionAvailable;
+    
     public Room(String roomName, Player hostPlayer) {
         RoomName = roomName;
         P1 = hostPlayer;
@@ -41,6 +51,13 @@ public class Room {
         currentRound = 1;
         P1Aschente = false;
         P2Aschente = false;
+        P1EnterChoice = false;
+        P2EnterChoice = false;
+        P1WinFlag = false;
+        P2WinFlag = false;
+        P1ReqStatus = false;
+        P2ReqStatus = false;
+        decisionAvailable = false;
     }
     
     public void Join(Player joinPlayer) {
@@ -72,4 +89,110 @@ public class Room {
         return (P1Aschente && P2Aschente);
     }
     
+    public void enterChoice(Player whoEntered, String choice) {
+        if (whoEntered.equals(P1)) {
+            P1EnterChoice = true;
+            P1Choice = choice;
+            System.out.println(P1.getPlayerName()+" choose: "+choice);
+        } else {
+            P2EnterChoice = true;
+            P2Choice = choice;
+            System.out.println(P2.getPlayerName()+" choose: "+choice);
+        }
+    }
+    
+    private void resetFlags() {
+        P1EnterChoice = false;
+        P2EnterChoice = false;
+        P1WinFlag = false;
+        P2WinFlag = false;
+        P1ReqStatus = false;
+        P2ReqStatus = false;
+        decisionAvailable = false;
+    }
+    
+    public boolean hasBothChoosen() {
+        return (P1EnterChoice && P2EnterChoice);
+    }
+    
+    public void makeDecision() {
+        if(P1Choice.equals("NOTHINGSELECTED") && P2Choice.equals("NOTHINGSELECTED")) {
+            P1WinFlag = true;
+            P2WinFlag = true;
+        } else if (P1Choice.equals("NOTHINGSELECTED") && !P2Choice.equals("NOTHINGSELECTED")) {
+            P2WinFlag = true;
+        } else if (!P1Choice.equals("NOTHINGSELECTED") && P2Choice.equals("NOTHINGSELECTED")) {
+            P1WinFlag = true;
+        }
+        
+        else if (P1Choice.equals("ROCK") && P2Choice.equals("ROCK")) {
+            P1WinFlag = true;
+            P2WinFlag = true;
+        } else if (P1Choice.equals("ROCK") && P2Choice.equals("SCISSOR")) {
+            P1WinFlag = true;
+        } else if (P1Choice.equals("ROCK") && P2Choice.equals("PAPER")) {
+            P2WinFlag = true;
+        }
+        
+        else if (P1Choice.equals("SCISSOR") && P2Choice.equals("SCISSOR")) {
+            P1WinFlag = true;
+            P2WinFlag = true;
+        } else if (P1Choice.equals("SCISSOR") && P2Choice.equals("ROCK")) {
+            P2WinFlag = true;
+        } else if (P1Choice.equals("SCISSOR") && P2Choice.equals("PAPER")) {
+            P1WinFlag = true;
+        } 
+        
+        else if (P1Choice.equals("PAPER") && P2Choice.equals("PAPER")) {
+            P1WinFlag = true;
+            P2WinFlag = true;
+        } else if (P1Choice.equals("PAPER") && P2Choice.equals("ROCK")) {
+            P1WinFlag = true;
+        } else if (P1Choice.equals("PAPER") && P2Choice.equals("SCISSOR")) {
+            P2WinFlag = true;
+        }
+        
+        if (P1WinFlag == true && P2WinFlag == true) {
+                System.out.println("DRAW");
+        } else if (P1WinFlag == true && P2WinFlag == false) {
+                System.out.println(P1.getPlayerName()+" WINS");
+        } else if (P1WinFlag == false && P2WinFlag == true) {
+                System.out.println(P2.getPlayerName()+" WINS");
+        }
+        
+        decisionAvailable = true;
+        
+
+    }
+    
+    public String requestWinningStatus (Player whoRequested) {
+        String retval;
+        if (whoRequested.equals(P1)) {
+            if (P1WinFlag == true && P2WinFlag == true) {
+                retval = "DRAW";
+            } else if (P1WinFlag == true && P2WinFlag == false) {
+                retval = "WIN";
+            } else {
+                retval = "LOSE";
+            }
+            P1ReqStatus = true;
+        } else {
+            if (P1WinFlag == true && P2WinFlag == true) {
+                retval = "DRAW";
+            } else if (P2WinFlag == true && P1WinFlag == false) {
+                retval = "WIN";
+            } else {
+                retval = "LOSE";
+            }
+            P2ReqStatus = true;
+        }
+        if(P1ReqStatus && P2ReqStatus) {
+            resetFlags();
+        }
+        return retval;
+    }
+    
+    public boolean isDecisionAvailableYet() {
+        return decisionAvailable;
+    }
 }

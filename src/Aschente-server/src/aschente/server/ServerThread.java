@@ -22,8 +22,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -36,10 +34,11 @@ public class ServerThread extends Thread {
     private ObjectInputStream in;
     private String Query;
     private String userName;
-    private String roomName;
+    private String roomName = "";
     private boolean isHost;
     private Player P;
     private Room currentRoom;
+    private String choice;
 
     public ServerThread(Socket socket) {
         this.isHost = false;
@@ -73,6 +72,30 @@ public class ServerThread extends Thread {
                     case "ASCHENTE!":
                         AschenteHandler();
                         break;
+                    case "ROCK":
+                        choice = "ROCK";
+                        GameHandler();
+                        break;
+                    case "PAPER":
+                        choice = "PAPER";
+                        GameHandler();
+                        break;
+                    case "SCISSOR":
+                        choice = "SCISSOR";
+                        GameHandler();
+                        break;
+                    case "NOTHINGSELECTED":
+                        choice = "NOTHINGSELECTED";
+                        GameHandler();
+                        break;
+                    case "SAVEGAME":
+                        P.updatePlayer();
+                        break;
+                    case "NEWGAME":
+                        DeleteRoom();
+                        break;
+                    case "SHUTDOWN":
+                        throw new IOException();
                 }
             }
         } catch (Throwable t) {
@@ -84,14 +107,7 @@ public class ServerThread extends Thread {
                 System.err.println(ex);
             }
             if(userName != null) P.updatePlayer();
-            if (isHost) {
-                for(int i = 0; i < ServerVar.RoomList.size();i++) {
-                    if(ServerVar.RoomList.get(i).RoomName.equals(roomName)) {
-                        ServerVar.RoomList.remove(i);
-                        break;
-                    }
-                }
-            }
+            DeleteRoom();
         }
     }
 
@@ -109,6 +125,16 @@ public class ServerThread extends Thread {
         }
     }
     
+    private void DeleteRoom() {
+        for(int i = 0; i < ServerVar.RoomList.size();i++) {
+                if(ServerVar.RoomList.get(i).RoomName.equals(roomName)) {
+                    ServerVar.RoomList.remove(i);
+                    break;
+                }
+            }
+        roomName = "";
+    }
+    
     private void UserLoginHandler() throws IOException {
             /* UserLogin.java handler */
             Send("ACK");
@@ -123,11 +149,12 @@ public class ServerThread extends Thread {
     private void CreateRoomHandler() throws IOException {
             Send("ACK");
             roomName = (String) Receive();
-            System.out.println(roomName);
+            System.out.println("Player: "+P.getPlayerName()+" created room: "+roomName);
             currentRoom = new Room(roomName, P);
             ServerVar.RoomList.add(currentRoom);
             isHost = true;
             while (currentRoom.isFull == false) {
+                Send("PING");
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException ex) {
@@ -148,7 +175,7 @@ public class ServerThread extends Thread {
     private void JoinRoomHandler() throws IOException {
         Send("ACK");
         roomName = (String) Receive();
-        System.out.println(roomName);
+        System.out.println("Player: "+P.getPlayerName()+" joins Room:"+roomName);
         int i = 0;
         boolean stop = false;
         currentRoom = null;
@@ -164,8 +191,6 @@ public class ServerThread extends Thread {
     }
     
     private void RefreshGameDataHandler() throws IOException {
-        System.out.println(currentRoom.getOtherPlayer(P).getPlayerName());
-        System.out.println(currentRoom.getOtherPlayer(P).getPlayerScore());
         Send(currentRoom.getOtherPlayer(P).getPlayerName());
         Send(currentRoom.getOtherPlayer(P).getPlayerScore());
         Send(ServerVar.PlayTo);
@@ -174,12 +199,26 @@ public class ServerThread extends Thread {
     
     private void AschenteHandler() throws IOException {
         currentRoom.Aschente(P);
-        System.out.println("WAITING");
         while(!currentRoom.isBothAschente()) {
             //wait
-            System.out.println("WAITING");
         }
         Send("ASCHENTE!");
     }
-    
+
+    private void GameHandler() throws IOException {
+        currentRoom.enterChoice(P, choice);
+        if (isHost) {
+            while(!currentRoom.hasBothChoosen()) {
+                //do nothing, wait until both enter their choice
+            }
+            currentRoom.makeDecision();
+            Send(currentRoom.requestWinningStatus(P));
+        } else {
+            while(!currentRoom.isDecisionAvailableYet()) {
+                //wait do nothing
+            }
+            Send(currentRoom.requestWinningStatus(P));
+        }
+    }
+   
 }

@@ -24,8 +24,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -54,10 +52,9 @@ public class Player {
             isNew = true;
             score = 0;
         }
-        System.out.println();
+        System.out.println("PLAYER DATA:");
         System.out.println("Name: " + name);
         System.out.println("Score: " + score);
-        System.out.println("isNew?: " + isNew);
         System.out.println();
     }
     
@@ -79,8 +76,7 @@ public class Player {
             while (sc.hasNextLine() && !found) {
                 processing = sc.nextLine().split(";");
                 if (processing[0].equals(name)) {
-                    //   score = Integer.parseInt(processing[1]);
-                    score = 0;
+                    score = Integer.parseInt(processing[1]);
                     isNew = false;
                     found = true;
                 }

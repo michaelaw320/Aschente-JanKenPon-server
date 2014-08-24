@@ -18,7 +18,6 @@
 
 package aschente.server;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -27,6 +26,6 @@ import java.util.ArrayList;
  */
 public class ServerVar {
     public static volatile ArrayList<Room> RoomList = new ArrayList<>(); 
-    public static int PlayTo = 10;
+    public static int PlayTo = 1;
     
 }
