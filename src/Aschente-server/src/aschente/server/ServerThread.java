@@ -169,7 +169,7 @@ public class ServerThread extends Thread {
     private void RefreshListHandler() throws IOException {
         ArrayList<String> RoomNameList = new ArrayList<>();
         for (Room RoomList : ServerVar.RoomList) {
-            RoomNameList.add(RoomList.RoomName);
+            if(RoomList.isFull == false) RoomNameList.add(RoomList.RoomName);
         }
         Send(RoomNameList);
     }
